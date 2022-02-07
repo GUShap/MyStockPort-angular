@@ -1,5 +1,11 @@
-<div class="contact-container">
-  <mat-card class="contact-card" *ngFor="let contact of currUser$.contacts">
+<div class="contact-container" 
+cdkDropListGroup
+cdkDropList 
+[cdkDropListData]="currUser$.contacts" 
+(cdkDropListDropped)="drop($event)"
+>
+
+  <mat-card class="contact-card" *ngFor="let contact of currUser$.contacts" cdkDrag>
     <mat-card-title-group>
       <mat-card-title>{{contact.login.username}}</mat-card-title>
       <mat-card-subtitle>

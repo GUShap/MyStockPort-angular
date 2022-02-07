@@ -144,6 +144,7 @@ export class UserService {
         delete user.picture
 
         this._usersDb.push(user)
+        this._users$.next(this._usersDb)
         this.utils.store(this.usersKey, this._usersDb)
       })
     this.login({ email, password })

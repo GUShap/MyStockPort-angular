@@ -4,6 +4,8 @@ import { User, UserStock } from 'src/app/models/user';
 import { DashboardService } from 'src/app/services/dashboard/dashboard.service';
 import { UserService } from 'src/app/services/user/user.service';
 
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -18,7 +20,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private dashboardService: DashboardService,
     private userService: UserService,
-    private cf: ChangeDetectorRef
   ) { }
 
   async ngOnInit() {
@@ -31,8 +32,4 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscribe.unsubscribe()
   }
-
-
-
-
 }

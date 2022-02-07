@@ -8,6 +8,8 @@ import { DashboardComponent } from 'src/app/modules/dashboard/dashboard.componen
 import { RouterModule } from '@angular/router';
 import { PostsComponent } from 'src/app/modules/posts/posts.component';
 import { ContactsComponent } from 'src/app/modules/contacts/contacts.component';
+import { LeadsComponent } from 'src/app/modules/leads/leads.component';
+
 
 
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -20,8 +22,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
+import {MatProgressBarModule} from '@angular/material/progress-bar'
 
 import { FormsModule } from '@angular/forms';
+import {DragDropModule } from '@angular/cdk/drag-drop';
 
 
 
@@ -30,7 +35,8 @@ import { FormsModule } from '@angular/forms';
     DefaultComponent,
     DashboardComponent,
     PostsComponent,
-    ContactsComponent
+    ContactsComponent,
+    LeadsComponent
 
   ],
   imports: [
@@ -46,7 +52,10 @@ import { FormsModule } from '@angular/forms';
     MatPaginatorModule,
     MatInputModule,
     MatListModule,
+    MatProgressBarModule,
     FormsModule,
+    MatButtonModule,
+    DragDropModule
   ],
   providers: [
     DashboardService,

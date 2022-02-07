@@ -1,37 +1,34 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { User } from 'src/app/models/user';
-import { StocksService } from 'src/app/services/stocks/stocks.service';
 import { UserService } from 'src/app/services/user/user.service';
 
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
+
 @Component({
-  selector: 'app-contacts',
-  templateUrl: './contacts.component.html',
-  styleUrls: ['./contacts.component.scss']
+  selector: 'app-leads',
+  templateUrl: './leads.component.html',
+  styleUrls: ['./leads.component.scss']
 })
-export class ContactsComponent implements OnInit {
+export class LeadsComponent implements OnInit {
 
   subscribe: Subscription
   currUser$: User;
-  stockDetails$;
-  contactId: string | number;
+  allUsers$;
+  stockDetails$ = null;
+  leads:User[];
 
-  constructor(
-    private userService: UserService,
-    private stockService: StocksService,
-  ) { }
+  constructor(private userService: UserService) { }
 
-  ngOnInit(): void {
-    this.subscribe = this.userService.currUser$.subscribe(res => { this.currUser$ = res; })
+  leadsToShow() {
+    return (this.allUsers$.filter((user: User) => {
+      return !this.currUser$.contacts
+        .some(contact => user.id === contact.id)
+    })
+    )
   }
 
-  async stockDetails(stock) {
-    this.contactId = stock.userId
-    delete this.stockDetails$
-    this.stockDetails$ = await this.stockService.stockDetails(stock.symbol)    
-  }
   drop(event: CdkDragDrop<User[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
@@ -45,5 +42,11 @@ export class ContactsComponent implements OnInit {
     }
   }
 
+  ngOnInit(): void {
+    this.userService.loadUsers()
+    this.subscribe = this.userService.currUser$.subscribe(res => { this.currUser$ = res; })
+    this.subscribe = this.userService.users$.subscribe(res => { this.allUsers$ = res })
+    this.leads = this.leadsToShow()
+  }
 
 }

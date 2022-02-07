@@ -5,6 +5,7 @@ import { LoginComponent } from './modules/auth/cmps/login/login.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { PostsComponent } from './modules/posts/posts.component';
 import {ContactsComponent} from 'src/app/modules/contacts/contacts.component'
+import { LeadsComponent } from './modules/leads/leads.component';
 
 const routes: Routes = [{
   path:'login',
@@ -23,6 +24,10 @@ const routes: Routes = [{
   {
     path:'contacts',
     component: ContactsComponent
+  },
+  {
+    path:'leads',
+    component:LeadsComponent
   }
   ]
 }
