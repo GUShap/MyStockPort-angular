@@ -1,0 +1,26 @@
+<section>
+<div>
+    <app-widget-area *ngIf="chartData$" [chartData]="chartData$"></app-widget-area>
+</div>
+
+<br>
+<mat-divider></mat-divider>
+<br>
+
+<h4>This Week</h4>
+<div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="20px" class="stats-crads">
+    <mat-card *ngFor="let stock of chartData$" fxFlex="25">
+        <app-widget-card [chartData]="stock"></app-widget-card>
+    </mat-card>
+</div>
+
+<br>
+
+<mat-divider></mat-divider>
+<br>
+<div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="20px">
+        <div fxFlex="85">
+            <app-widget-pie *ngIf="chartData$" [chartData]="chartData$"></app-widget-pie>
+        </div>
+    </div>
+</section>

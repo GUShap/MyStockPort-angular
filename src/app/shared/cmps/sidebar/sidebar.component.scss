@@ -1,0 +1,26 @@
+:host {
+    mat-nav-list{
+        overflow: hidden;
+    }
+
+    .mat-icon {
+        margin-right: 20px;
+    }
+    .profile-card {
+        text-align: center;
+        padding: 0 20px;
+
+  .header{
+      text-align: left;     
+}
+
+
+        img {
+            height: 100px;
+            width: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+    }
+
+}

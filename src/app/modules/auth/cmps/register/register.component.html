@@ -1,0 +1,19 @@
+<div class="login-container">
+    <form class="sign-in">
+        <label for="name">User Name:</label>
+        <input type="text" [(ngModel)]="info.username" [ngModelOptions]="{standalone: true}" name="name" required>
+        <label for="emil">Email:</label>
+        <input type="email" [(ngModel)]="info.email" [ngModelOptions]="{standalone: true}" name="emil"
+            class={{emailInputClass()}} (ngModelChange)="checkValidEmail()" required>
+        <p>{{invalidEmail}}</p>
+        <label for="password">Password:</label>
+        <input [type]="isPasswordVisible? 'text':'password'" [(ngModel)]="info.password"
+            [ngModelOptions]="{standalone: true}" name="password" required>
+        <mat-icon *ngIf="isPasswordVisible" (click)="isPasswordVisible=!isPasswordVisible">visibility</mat-icon>
+        <mat-icon *ngIf="!isPasswordVisible" (click)="isPasswordVisible=!isPasswordVisible">visibility_off</mat-icon>
+
+    </form>
+    <section class="nav-btns">
+        <button mat-button (click)="registerUser()">Submit</button>
+    </section>
+</div>

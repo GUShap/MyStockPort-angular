@@ -1,0 +1,36 @@
+<div class="contact-container">
+  <mat-card class="contact-card" *ngFor="let contact of currUser$.contacts">
+    <mat-card-title-group>
+      <mat-card-title>{{contact.login.username}}</mat-card-title>
+      <mat-card-subtitle>
+        {{contact.name.title}}
+        {{contact.name.first}}
+        {{contact.name.last}}
+      </mat-card-subtitle>
+      <img mat-card-lg-image src="{{contact.imgUrl}}">
+    </mat-card-title-group>
+
+    <mat-card-content>
+      <mat-selection-list #stock [multiple]="false">
+        <h1>my Portfolio</h1>
+        <mat-list-option (click)="stockDetails(stock)" *ngFor="let stock of contact.portfolio" [value]="stockDetails$">
+          {{stock.symbol}}
+        </mat-list-option>
+      </mat-selection-list>
+
+      <ng-template [ngIf]="stockDetails$ && contact.id ===contactId" [ngIfElse]="landing">
+        <mat-divider></mat-divider>
+        <div class="stock-details">
+          <h2> {{stockDetails$['Name']}}</h2>
+          <h3>{{stockDetails$['Sector']}}</h3>
+          <p>{{stockDetails$['Description']}}</p>
+        </div>
+      </ng-template>
+
+      <ng-template #landing>
+        <p></p>
+      </ng-template>
+
+    </mat-card-content>
+  </mat-card>
+</div>

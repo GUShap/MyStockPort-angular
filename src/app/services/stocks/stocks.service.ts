@@ -1,0 +1,567 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { UtilsService } from '../utils/utils.service';
+import { BehaviorSubject, forkJoin, Subscription } from 'rxjs';
+import { Stock } from 'src/app/models/stock';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class StocksService {
+  private _apiKey = 'TEUH27YAZWKT45IS'
+  public subscribe: Subscription
+
+  private _currStock$ = new BehaviorSubject<Stock>(null)
+  public currStock$ = this._currStock$.asObservable()
+
+  private _tickersDb = [
+    'A',
+    'AAL',
+    'AAP',
+    'AAPL',
+    'ABBV',
+    'ABC',
+    'ABMD',
+    'ABT',
+    'ACN',
+    'ADBE',
+    'ADI',
+    'ADM',
+    'ADP',
+    'ADSK',
+    'AZO',
+    'BA',
+    'BAC',
+    'BAX',
+    'BBWI',
+    'BBY',
+    'BDX',
+    'BEN',
+    'BIIB',
+    'BIO',
+    'BK',
+    'BKNG',
+    'BKR',
+    'BLK',
+    'BLL',
+    'BMY',
+    'BR',
+    'BRK.B',
+    'BRO',
+    'BSX',
+    'BWA',
+    'BXP',
+    'C',
+    'CAG',
+    'CAH',
+    'CARR',
+    'CAT',
+    'CB',
+    'CBOE',
+    'CBRE',
+    'CCI',
+    'CCL',
+    'CDAY',
+    'CDNS',
+    'CDW',
+    'CE',
+    'CERN',
+    'CF',
+    'DIS',
+    'DISCA',
+    'DISCK',
+    'DISH',
+    'DLR',
+    'DLTR',
+    'DOV',
+    'DOW',
+    'DPZ',
+    'DRE',
+    'DRI',
+    'DTE',
+    'DUK',
+    'DVA',
+    'DVN',
+    'DXC',
+    'DXCM',
+    'EA',
+    'EBAY',
+    'ECL',
+    'ED',
+    'EFX',
+    'EIX',
+    'EL',
+    'EMN',
+    'EMR',
+    'ENPH',
+    'EOG',
+    'EPAM',
+    'EQIX',
+    'EQR',
+    'ES',
+    'ESS',
+    'GPC',
+    'GPN',
+    'GPS',
+    'GRMN',
+    'GS',
+    'GWW',
+    'HAL',
+    'HAS',
+    'HBAN',
+    'HCA',
+    'HD',
+    'HES',
+    'HIG',
+    'HII',
+    'HLT',
+    'HOLX',
+    'HON',
+    'HPE',
+    'HPQ',
+    'HRL',
+    'HSIC',
+    'HST',
+    'HSY',
+    'HUM',
+    'HWM',
+    'IBM',
+    'ICE',
+    'IR',
+    'IRM',
+    'ISRG',
+    'IT',
+    'ITW',
+    'IVZ',
+    'J',
+    'JBHT',
+    'JCI',
+    'JKHY',
+    'JNJ',
+    'JNPR',
+    'JPM',
+    'K',
+    'KEY',
+    'KEYS',
+    'KHC',
+    'KIM',
+    'LUV',
+    'LVS',
+    'LW',
+    'LYB',
+    'LYV',
+    'MA',
+    'MAA',
+    'MAR',
+    'MAS',
+    'MCD',
+    'MCHP',
+    'MCK',
+    'MCO',
+    'MDLZ',
+    'MDT',
+    'MET',
+    'MGM',
+    'MHK',
+    'MKC',
+    'MKTX',
+    'MLM',
+    'MMC',
+    'MMM',
+    'MNST',
+    'MO',
+    'MOS',
+    'MPC',
+    'MPWR',
+    'MRK',
+    'MRNA',
+    'MRO',
+    'MS',
+    'MSCI',
+    'MSFT',
+    'MSI',
+    'MTB',
+    'MTCH',
+    'MTD',
+    'MU',
+    'NCLH',
+    'NDAQ',
+    'NEE',
+    'NEM',
+    'NFLX',
+    'NI',
+    'NKE',
+
+    'PAYX',
+    'PBCT',
+    'PCAR',
+    'PEAK',
+    'PEG',
+    'PENN',
+    'PEP',
+    'PFE',
+    'PFG',
+    'PG',
+    'PGR',
+    'PH',
+    'PHM',
+    'PKG',
+    'PKI',
+    'PLD',
+    'STZ',
+    'SWK',
+    'SWKS',
+    'SYF',
+    'SYK',
+    'SYY',
+    'T',
+    'TAP',
+    'TDG',
+    'TDY',
+    'TECH',
+    'TEL',
+    'TER',
+    'TFC',
+    'TFX',
+    'TGT',
+    'TJX',
+    'TMO',
+    'TMUS',
+
+    'WY',
+    'WYNN',
+    'XEL',
+    'XLNX',
+    'XOM',
+    'XRAY',
+    'XYL',
+    'YUM',
+    'ZBH',
+    'ZBRA',
+    'ZION',
+    'ZTS',
+  ]
+
+  private _trendingDb = ['AAPL', 'GOOGL', 'FB', 'NVDA', 'AMZN']
+  private trendingKey = 'trendingDB'
+
+  private _trendingOverview$ = new BehaviorSubject<any>(null)
+  public trendingOverview$ = this._trendingOverview$.asObservable()
+
+  private _allTickers$ = new BehaviorSubject<string[]>(this._tickersDb)
+  public allTickers$ = this._allTickers$.asObservable()
+
+  constructor(
+    private utils: UtilsService,
+    private http: HttpClient
+  ) { }
+
+
+  public async loadStockDataDaily(portfolio: Object[]) {
+    let data = await this.getStockData(portfolio)
+    let dataToReturn = []
+    data.forEach(stock => {
+      let stockForChart = {
+        date: [],
+        value: [],
+        name: stock["Meta Data"]["2. Symbol"]
+      }
+      for (const key in stock["Time Series (Daily)"]) {
+        stockForChart.date.push(key)
+        stockForChart.value.push(+stock["Time Series (Daily)"][key]["4. close"])
+      }
+      dataToReturn.push(stockForChart)
+    })
+    return dataToReturn
+  }
+
+  public async getStockData(portfolio) {
+    const portfolioData = []
+    portfolio.forEach(async stock => {
+      let stockData = this.utils.load(stock.symbol)
+      if (!stockData || !stockData['Meta Data']) {
+        stockData = await this.envHttpCall(stock.symbol)
+        this.utils.store(stock.symbol, stockData)
+      }
+      portfolioData.push(stockData)
+    })
+
+
+      return portfolioData
+  }
+
+  private envHttpCall(symbol: string) {
+    return this.http
+      .get<Stock>(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=compact&apikey=${this._apiKey}`)
+      .toPromise()
+  }
+
+  public getTrendingStock() {
+
+  }
+
+  public async stockOverview() {
+    var data = this.utils.load(this.trendingKey) || []
+    if (!data || !data.length) {
+      this._trendingDb.forEach(async (symbol: string) => {
+        this.subscribe = await this.http.get(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${this._apiKey}`)
+          .subscribe((res: any) => {
+            data.push(res)
+          })
+      })
+      this._trendingOverview$.next(data)
+      this.utils.store(this.trendingKey, data)
+    }
+    this._trendingOverview$.next(data)
+  }
+
+  hardCoded() {
+    return [
+      {
+        "Symbol": "AMZN",
+        "AssetType": "Common Stock",
+        "Name": "Amazon.com Inc",
+        "Description": "Amazon.com, Inc. is an American multinational technology company which focuses on e-commerce, cloud computing, digital streaming, and artificial intelligence. It is one of the Big Five companies in the U.S. information technology industry, along with Google, Apple, Microsoft, and Facebook. The company has been referred to as one of the most influential economic and cultural forces in the world, as well as the world's most valuable brand.",
+        "CIK": "1018724",
+        "Exchange": "NASDAQ",
+        "Currency": "USD",
+        "Country": "USA",
+        "Sector": "TRADE & SERVICES",
+        "Industry": "RETAIL-CATALOG & MAIL-ORDER HOUSES",
+        "Address": "410 TERRY AVENUE NORTH, SEATTLE, WA, US",
+        "FiscalYearEnd": "December",
+        "LatestQuarter": "2021-09-30",
+        "MarketCapitalization": "1644559204000",
+        "EBITDA": "60403999000",
+        "PERatio": "63.46",
+        "PEGRatio": "2.051",
+        "BookValue": "237.8",
+        "DividendPerShare": "None",
+        "DividendYield": "0",
+        "EPS": "51.1",
+        "RevenuePerShareTTM": "909.11",
+        "ProfitMargin": "0.0574",
+        "OperatingMarginTTM": "0.0618",
+        "ReturnOnAssetsTTM": "0.0532",
+        "ReturnOnEquityTTM": "0.258",
+        "RevenueTTM": "457965011000",
+        "GrossProfitTTM": "152757000000",
+        "DilutedEPSTTM": "51.1",
+        "QuarterlyEarningsGrowthYOY": "-0.505",
+        "QuarterlyRevenueGrowthYOY": "0.153",
+        "AnalystTargetPrice": "4108.8",
+        "TrailingPE": "63.46",
+        "ForwardPE": "53.76",
+        "PriceToSalesRatioTTM": "3.591",
+        "PriceToBookRatio": "14.49",
+        "EVToRevenue": "3.89",
+        "EVToEBITDA": "27.48",
+        "Beta": "1.096",
+        "52WeekHigh": "3773.08",
+        "52WeekLow": "2881",
+        "50DayMovingAverage": "3438.09",
+        "200DayMovingAverage": "3394.89",
+        "SharesOutstanding": "507148000",
+        "DividendDate": "None",
+        "ExDividendDate": "None"
+      },
+      {
+        "Symbol": "FB",
+        "AssetType": "Common Stock",
+        "Name": "Meta Platforms Inc.",
+        "Description": "Facebook, Inc., is an American multinational technology conglomerate based in Menlo Park, California. It is one of the world's most valuable companies. It is considered one of the Big Five companies in U.S. information technology, with Google, Apple, Microsoft and Amazon. Facebook offers other products and services beyond its social networking platform, including Facebook Messenger, Facebook Watch, and Facebook Portal. It also has acquired Instagram, WhatsApp, Oculus, Giphy and Mapillary, and has a 9.9% stake in Jio Platforms.",
+        "CIK": "1326801",
+        "Exchange": "NASDAQ",
+        "Currency": "USD",
+        "Country": "USA",
+        "Sector": "TECHNOLOGY",
+        "Industry": "SERVICES-COMPUTER PROGRAMMING, DATA PROCESSING, ETC.",
+        "Address": "1601 WILLOW ROAD, MENLO PARK, CA, US",
+        "FiscalYearEnd": "December",
+        "LatestQuarter": "2021-09-30",
+        "MarketCapitalization": "923266122000",
+        "EBITDA": "54758998000",
+        "PERatio": "23.75",
+        "PEGRatio": "0.913",
+        "BookValue": "47.75",
+        "DividendPerShare": "None",
+        "DividendYield": "0",
+        "EPS": "13.97",
+        "RevenuePerShareTTM": "39.59",
+        "ProfitMargin": "0.359",
+        "OperatingMarginTTM": "0.418",
+        "ReturnOnAssetsTTM": "0.186",
+        "ReturnOnEquityTTM": "0.321",
+        "RevenueTTM": "112329998000",
+        "GrossProfitTTM": "69273000000",
+        "DilutedEPSTTM": "13.97",
+        "QuarterlyEarningsGrowthYOY": "0.188",
+        "QuarterlyRevenueGrowthYOY": "0.351",
+        "AnalystTargetPrice": "401.01",
+        "TrailingPE": "23.75",
+        "ForwardPE": "22.57",
+        "PriceToSalesRatioTTM": "8.22",
+        "PriceToBookRatio": "6.88",
+        "EVToRevenue": "7.76",
+        "EVToEBITDA": "15.92",
+        "Beta": "1.283",
+        "52WeekHigh": "384.33",
+        "52WeekLow": "253.5",
+        "50DayMovingAverage": "333.47",
+        "200DayMovingAverage": "337.64",
+        "SharesOutstanding": "2366280000",
+        "DividendDate": "None",
+        "ExDividendDate": "None"
+      },
+      {
+        "Symbol": "AAPL",
+        "AssetType": "Common Stock",
+        "Name": "Apple Inc",
+        "Description": "Apple Inc. is an American multinational technology company that specializes in consumer electronics, computer software, and online services. Apple is the world's largest technology company by revenue (totalling $274.5 billion in 2020) and, since January 2021, the world's most valuable company. As of 2021, Apple is the world's fourth-largest PC vendor by unit sales, and fourth-largest smartphone manufacturer. It is one of the Big Five American information technology companies, along with Amazon, Google, Microsoft, and Facebook.",
+        "CIK": "320193",
+        "Exchange": "NASDAQ",
+        "Currency": "USD",
+        "Country": "USA",
+        "Sector": "TECHNOLOGY",
+        "Industry": "ELECTRONIC COMPUTERS",
+        "Address": "ONE INFINITE LOOP, CUPERTINO, CA, US",
+        "FiscalYearEnd": "September",
+        "LatestQuarter": "2021-09-30",
+        "MarketCapitalization": "2773581038000",
+        "EBITDA": "120233001000",
+        "PERatio": "30.27",
+        "PEGRatio": "3.852",
+        "BookValue": "3.841",
+        "DividendPerShare": "0.85",
+        "DividendYield": "0.0052",
+        "EPS": "5.61",
+        "RevenuePerShareTTM": "21.9",
+        "ProfitMargin": "0.259",
+        "OperatingMarginTTM": "0.298",
+        "ReturnOnAssetsTTM": "0.202",
+        "ReturnOnEquityTTM": "0.147",
+        "RevenueTTM": "365817004000",
+        "GrossProfitTTM": "152836000000",
+        "DilutedEPSTTM": "5.61",
+        "QuarterlyEarningsGrowthYOY": "0.662",
+        "QuarterlyRevenueGrowthYOY": "0.288",
+        "AnalystTargetPrice": "179.87",
+        "TrailingPE": "30.27",
+        "ForwardPE": "32.05",
+        "PriceToSalesRatioTTM": "7.58",
+        "PriceToBookRatio": "46.67",
+        "EVToRevenue": "8.22",
+        "EVToEBITDA": "24.41",
+        "Beta": "1.203",
+        "52WeekHigh": "182.94",
+        "52WeekLow": "115.67",
+        "50DayMovingAverage": "167.12",
+        "200DayMovingAverage": "146.63",
+        "SharesOutstanding": "16334399000",
+        "DividendDate": "2021-11-11",
+        "ExDividendDate": "2021-11-05"
+      },
+      {
+        "Symbol": "GOOGL",
+        "AssetType": "Common Stock",
+        "Name": "Alphabet Inc",
+        "Description": "Alphabet Inc. is an American multinational conglomerate headquartered in Mountain View, California. It was created through a restructuring of Google on October 2, 2015, and became the parent company of Google and several former Google subsidiaries. The two co-founders of Google remained as controlling shareholders, board members, and employees at Alphabet. Alphabet is the world's fourth-largest technology company by revenue and one of the world's most valuable companies.",
+        "CIK": "1652044",
+        "Exchange": "NASDAQ",
+        "Currency": "USD",
+        "Country": "USA",
+        "Sector": "TECHNOLOGY",
+        "Industry": "SERVICES-COMPUTER PROGRAMMING, DATA PROCESSING, ETC.",
+        "Address": "1600 AMPHITHEATRE PARKWAY, MOUNTAIN VIEW, CA, US",
+        "FiscalYearEnd": "December",
+        "LatestQuarter": "2021-09-30",
+        "MarketCapitalization": "1853587063000",
+        "EBITDA": "85196997000",
+        "PERatio": "26.87",
+        "PEGRatio": "0.855",
+        "BookValue": "367.95",
+        "DividendPerShare": "None",
+        "DividendYield": "0",
+        "EPS": "103.81",
+        "RevenuePerShareTTM": "356.56",
+        "ProfitMargin": "0.295",
+        "OperatingMarginTTM": "0.303",
+        "ReturnOnAssetsTTM": "0.14",
+        "ReturnOnEquityTTM": "0.309",
+        "RevenueTTM": "239210004000",
+        "GrossProfitTTM": "97795000000",
+        "DilutedEPSTTM": "103.81",
+        "QuarterlyEarningsGrowthYOY": "0.707",
+        "QuarterlyRevenueGrowthYOY": "0.41",
+        "AnalystTargetPrice": "3334.16",
+        "TrailingPE": "26.87",
+        "ForwardPE": "26.25",
+        "PriceToSalesRatioTTM": "7.75",
+        "PriceToBookRatio": "8.03",
+        "EVToRevenue": "7.75",
+        "EVToEBITDA": "18.92",
+        "Beta": "1.058",
+        "52WeekHigh": "3019.33",
+        "52WeekLow": "1797.28",
+        "50DayMovingAverage": "2895.81",
+        "200DayMovingAverage": "2657.78",
+        "SharesOutstanding": "300810000",
+        "DividendDate": "None",
+        "ExDividendDate": "None"
+      },
+      {
+        "Symbol": "NVDA",
+        "AssetType": "Common Stock",
+        "Name": "NVIDIA Corporation",
+        "Description": "Nvidia Corporation is an American multinational technology company incorporated in Delaware and based in Santa Clara, California. It designs graphics processing units (GPUs) for the gaming and professional markets, as well as system on a chip units (SoCs) for the mobile computing and automotive market.",
+        "CIK": "1045810",
+        "Exchange": "NASDAQ",
+        "Currency": "USD",
+        "Country": "USA",
+        "Sector": "MANUFACTURING",
+        "Industry": "SEMICONDUCTORS & RELATED DEVICES",
+        "Address": "2701 SAN TOMAS EXPRESSWAY, SANTA CLARA, CA, US",
+        "FiscalYearEnd": "January",
+        "LatestQuarter": "2021-10-31",
+        "MarketCapitalization": "645502730000",
+        "EBITDA": "9759000000",
+        "PERatio": "79.87",
+        "PEGRatio": "3.219",
+        "BookValue": "9.51",
+        "DividendPerShare": "0.16",
+        "DividendYield": "0.0006",
+        "EPS": "3.243",
+        "RevenuePerShareTTM": "9.75",
+        "ProfitMargin": "0.338",
+        "OperatingMarginTTM": "0.354",
+        "ReturnOnAssetsTTM": "0.159",
+        "ReturnOnEquityTTM": "0.419",
+        "RevenueTTM": "24274000000",
+        "GrossProfitTTM": "10557000000",
+        "DilutedEPSTTM": "3.243",
+        "QuarterlyEarningsGrowthYOY": "0.83",
+        "QuarterlyRevenueGrowthYOY": "0.503",
+        "AnalystTargetPrice": "341.2",
+        "TrailingPE": "79.87",
+        "ForwardPE": "58.82",
+        "PriceToSalesRatioTTM": "26.59",
+        "PriceToBookRatio": "31.72",
+        "EVToRevenue": "30.79",
+        "EVToEBITDA": "75.3",
+        "Beta": "1.314",
+        "52WeekHigh": "346.43",
+        "52WeekLow": "115.56",
+        "50DayMovingAverage": "298.62",
+        "200DayMovingAverage": "218.85",
+        "SharesOutstanding": "2492000000",
+        "DividendDate": "2021-12-23",
+        "ExDividendDate": "2021-12-01"
+      }
+    ]
+  }
+
+  public async stockDetails(symbol: string) {
+    return this.http.get(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${this._apiKey}`)
+      .toPromise()
+  }
+}

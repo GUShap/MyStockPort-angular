@@ -1,0 +1,25 @@
+footer {
+    padding: 10px;
+    display: flex;
+    height: 30px;
+    background-color: rgb(59, 111, 255);
+
+
+    img {
+        // transform: translateY(-25%);
+        // position: absolute;
+        height: 20px;
+        margin: 0;
+        padding: 0;
+    }
+    span{
+        color: rgb(214, 214, 214);
+        font: 20px 'Courgette';
+        margin-left: 37px;
+    }
+
+    p{
+        color: rgb(214, 214, 214);
+        font-weight: bold;
+    }
+}

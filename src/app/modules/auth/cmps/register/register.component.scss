@@ -1,0 +1,52 @@
+.login-container {
+    padding: 50px 25%;
+
+    form {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+
+        label {
+            padding-top: 20px;
+            font: 18px "Century Gothic";
+        }
+        input {
+            padding-left: 10px;
+            border: 1px solid;
+            border-bottom: 2px solid;
+            border-radius: 4px;
+            height: 20px;
+        }
+        p {
+            display:contents;
+        }
+
+        mat-icon {
+            margin-left: 90%;
+        }
+
+        .valid {
+            border-bottom: 4px solid rgb(113, 179, 15);
+        }
+        .invalid {
+            border-bottom: 4px solid rgb(211, 6, 6);
+        }
+    }
+
+    mat-icon {
+        cursor: pointer;
+    }
+
+    .nav-btns {
+        padding-top: 20px;
+        display: flex;
+        gap: 40px;
+
+        .mat-button-base {
+            margin: 8px 8px 8px 0;
+            padding: 0;
+            background-color: rgb(53, 53, 177);
+            color: white;
+        }
+    }
+}
